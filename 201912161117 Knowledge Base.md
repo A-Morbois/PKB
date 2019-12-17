@@ -2,7 +2,15 @@
 tags = #KnowledgeBase
 
 
-##Useful links
+
+![Knowledge_db](Img/knowledge_db.jpg)
+
+
+## Related topic
+
+[[201912171622]] Information Architecture
+
+## Useful links
 
 https://www.helpscout.com/helpu/knowledge-base-article/ 
 https://www.helpscout.com/helpu/knowledge-base-examples/
