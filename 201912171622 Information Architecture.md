@@ -24,7 +24,7 @@ tags = #InformationArchitecture #KnowledgeBase
 	* Search for scenarios
 
 - Competitor Analysis
-	* Benchmark to keep the good idea
+	* Benchmark to keep the good idea and integrate them into your own IA
 
 - Define the content
 
