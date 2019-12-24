@@ -1,14 +1,14 @@
 # 201912191737 Software antifragility
 tags = #SofwareDevelopment #Antifragile #Article
 
-[Source](https://hackernoon.com/site-antifragility-engineering-kr3c3njp)
+[site-antifragility-engineering](https://hackernoon.com/site-antifragility-engineering-kr3c3njp)
 
 When releasing a software:
 the more control we put on the release, the more fragile is the system.
 -> Less release, more feature in one shoot, more interdependance, more stress, more difficult to fix
 
-this is an non ending circle :
 
+this is an non ending circle :
 Prod error -> more control -> less release -> deployment more fragile -> prod error
 
 Software can be antifragile. 
