@@ -10,3 +10,6 @@ https://corporate-innovation.co/2014/08/13/using-corporate-incubators-and-accele
 https://hackernoon.com/site-antifragility-engineering-kr3c3njp
 https://www.sciencedirect.com/science/article/pii/S1877050916302290
 https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code/
+
+# Usefule Website
+https://managementhelp.org/
