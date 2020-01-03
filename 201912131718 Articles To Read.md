@@ -11,5 +11,5 @@ https://hackernoon.com/site-antifragility-engineering-kr3c3njp
 https://www.sciencedirect.com/science/article/pii/S1877050916302290
 https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-piece-of-code/
 
-# Usefule Website
+# Useful Website
 https://managementhelp.org/
