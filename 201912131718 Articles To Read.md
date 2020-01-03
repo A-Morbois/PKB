@@ -13,3 +13,4 @@ https://qz.com/646467/how-one-programmer-broke-the-internet-by-deleting-a-tiny-p
 
 # Useful Website
 https://managementhelp.org/
+https://powerful-problem-solving.com/

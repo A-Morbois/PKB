@@ -5,8 +5,8 @@ tags = #ProblemSolving
 
 
 ## references
-[Improve your problem solving](https://nickols.us/ten_tips.htm)
-
+[10 steps to improve your problem solving](https://nickols.us/ten_tips.htm)
+[Blog on problem solving](https://powerful-problem-solving.com/)
 
 
 
