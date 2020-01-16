@@ -1,5 +1,5 @@
 # 201912161110 Powershell CheatSheet
-tags = #Powershell, #Documentation, #SofwareDevelopment
+tags = #Powershell, #Documentation, #SofwareDevelopment, #IT
 
 
 ## Get to know your object

@@ -1,5 +1,5 @@
 # 201912161116 Git CheatSheet
-tags = #Git , #Documentation
+tags = #Git , #Documentation, #IT
 
 
 ## Connaitre les branches présentes dans le répot
