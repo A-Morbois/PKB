@@ -40,3 +40,9 @@ OR
 
 
 ----------------
+
+## Foreach-object ( % )
+`foreach-object {Run at the start}{Run for each object in the loop}{Run at the end}`
+
+**List the function of your module** 
+`$(Get-Module <ModuleName>).ExportedCommands.Keys | % {$_}`
