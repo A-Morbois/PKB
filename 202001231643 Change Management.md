@@ -10,7 +10,7 @@ On peut faire plusieurs comm en fonction du niveau de connaissance et du message
 *  Sponsor 
 Identifier le profil clé qui a de l'influence. Manager, leader, coach... 
 
->[Though about Leadership](201912241354 Though about Leadership.md) 
+[Though about Leadership](201912241354 Though about Leadership.md) 
 >[[201912241354]]
 
 
@@ -27,7 +27,7 @@ On commence simple et précis puis en construit par dessus en utilisant les acqu
 Mettre à disposition les liens, expliquer où trouver les ressources, le happy path de formation etc... 
 Apres quelques temps, ne plus répondre aux questions basiques et forcer les users à se rendre sur la doc.
 
->[Onboarding](202001161142 Onboarding.md)
+[Onboarding](202001161142 Onboarding.md)
 >[[202001161142]] 
 
 
