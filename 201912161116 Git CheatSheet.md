@@ -2,15 +2,34 @@
 tags = #Git , #Documentation, #IT
 
 
-## Connaitre les branches présentes dans le répot
+## Branch
+* Connaitre les branches présentes dans le répot
 `git branch -a `
 
-## Bouger de branche
+* Bouger de branche
 `git checkout <Branch_Name>`
 
-## Créer une branche 
+* Créer une branche 
 `git checkout -b <Branch_Name>`
 
 
-## See last commit
+
+
+## Commit 
+* See last commit
 `$ git log --all --oneline --graph --max-count 20`
+
+
+* modify last commit 
+`git commit --amend`
+
+## Work Folder
+* See current work folder
+`git status`
+
+* Reset your work folder 
+`git stash + git stash drop`
+
+
+
+

@@ -1,5 +1,5 @@
 # 202001271310 Homo Sapiens à l'heure de l'IA
-tags = #Book #Meditation #Sociéte #Innovation
+tags = #Book #Meditation #Societe #Innovation
 
 changement de la société au fil des ages.
 Métamorphose de l'humain avec sa prise de conscience.
