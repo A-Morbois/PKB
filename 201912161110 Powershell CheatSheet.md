@@ -46,3 +46,8 @@ OR
 
 **List the function of your module** 
 `$(Get-Module <ModuleName>).ExportedCommands.Keys | % {$_}`
+
+
+## Manifest
+
+file.psd1
