@@ -48,6 +48,6 @@ OR
 `$(Get-Module <ModuleName>).ExportedCommands.Keys | % {$_}`
 
 
-## Manifest
+## Manifest of a module
 
 file.psd1

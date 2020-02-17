@@ -23,6 +23,14 @@ tags = #Git , #Documentation, #IT
 * modify last commit 
 `git commit --amend`
 
+
+* remove last commit while keeping change
+`git reset --soft HEAD~1`
+
+* remove last commit and remove changes
+`git reset --hard HEAD~1`
+
+
 ## Work Folder
 * See current work folder
 `git status`
