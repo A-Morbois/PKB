@@ -51,3 +51,7 @@ OR
 ## Manifest of a module
 
 file.psd1
+
+
+## Count the number of line 
+`$b = 0; Get-ChildItem .\ -Recurse -File -filter "*.ps1" |Select-Object -Property Directory, Name | % { $b += $(get-content  "$($_.Directory)\$($_.Name)").count } ; write-host $b`

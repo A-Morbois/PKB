@@ -12,7 +12,8 @@ tags = #Git , #Documentation, #IT
 * Créer une branche 
 `git checkout -b <Branch_Name>`
 
-
+* delete une branche local
+`git branch -d <nom>`
 
 
 ## Commit 
@@ -38,6 +39,9 @@ tags = #Git , #Documentation, #IT
 * Reset your work folder 
 `git stash + git stash drop`
 
+
+* force suppression of deleted files
+`git rm $(git ls-files --deleted)`
 
 
 

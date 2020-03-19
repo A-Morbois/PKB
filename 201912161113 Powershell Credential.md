@@ -4,7 +4,7 @@ tags = #Powershell , #Documentation, #Credential, #SofwareDevelopment, #IT
 Credential 
 
 $username = "antoine.morbois@acme.com"
-$password = "azerty123"
+$password = "Abcd1234"
 $secureStringPwd = $password | ConvertTo-SecureString -AsPlainText -Force 
 $secureStringText = $secureStringPwd | ConvertFrom-SecureString
 Set-Content "C:\temp\ExportedPassword.txt" $secureStringText
