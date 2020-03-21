@@ -42,3 +42,8 @@ Can be change in Vagrantfile
 
 Provisionning : execute a script at the end of the boot of the machine
 Can be a script or a configuration manager (chef, puppet etc)
+
+run provisionning at the creation or need to run it manually `vagrant provision`
+`config.vm.provision "shell", path "<Bash_Script_path>"`
+
+VagrantFile is written in ruby
