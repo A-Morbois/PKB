@@ -45,12 +45,14 @@ using vagrantfile and config.vm.network "private_network".
 Vagrant reload
 
 
-
 // Side notes :
 IP ubuntu : "192.168.33.20"
 IP Centos : "192.168.33.10"
 
 Inside /etc/ansible/host : we can add IP or Host (referenced into /etc/host)
+
+
+`ansible all -a "cat /etc/hosts"` : discover if all machine answer your ansible configuration
 
 ### set up SSH connection
 * [[202003221000]] setu_SSH_Connection
@@ -59,3 +61,69 @@ Inside /etc/ansible/host : we can add IP or Host (referenced into /etc/host)
 In `/etc/hosts` add the reference to the other machine `192.168.33.20 ubuntu` so it's easier to switch and know your network
 
 ansible ubuntu -a "bash --version"
+
+### Yaml Playbook Modules
+
+! Careful with indentation / no tabs
+  
+
+- **become:** yes 
+> use sudo when executing a task
+
+-  `apt:` : the package manager from the system (would be yum for centos for exemple)
+
+- **state:** present/absent`
+
+- service:
+	name: apache2
+	**state:** started/stopped/restarted 
+	**enabled:** yes 
+> get start on boot
+
+- yum: **name={{ item }}** state=present
+      **with_items:
+        - mod_php7lw
+        - php7lw_cli** 
+> loop through item to install all of them
+
+
+- **file :**
+     path:
+     owner:
+     group:
+>Change the owner of a file
+
+- lineinfile:
+    path:
+    regexp:
+    line: 
+
+
+### Exemple of Yaml playblook
+*Make sure the host ubuntu have apache installed and it should started when booting*
+
+```
+- hosts: ubuntu
+  become: yes
+  tasks:
+    - name: Ensure that Apache is installed 
+      apt:
+        name: apache2
+        state: present
+
+    - name: Ensure that apache is running and will be started on boot
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+
+    - name: Install PHP 7 and required packages
+      yum: name={{ item }} state=present
+      with_items:
+        - mod_php7lw
+        - php7lw_cli
+        - ...
+
+ ```
+
+

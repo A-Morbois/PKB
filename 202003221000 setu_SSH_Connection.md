@@ -14,3 +14,10 @@ tags = #SSH #Linux
 
 
 // ctrl+D to logout the ssh
+
+
+## Troubleshooting 
+
+### With Vagrant
+using vagrant in the same Vagrantfile, the ssh keygen will be overwrite from one VM to another as the Vagrant directory is shared.
+[Here](https://github.com/hashicorp/vagrant/issues/10280)
