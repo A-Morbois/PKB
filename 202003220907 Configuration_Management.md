@@ -66,6 +66,8 @@ ansible ubuntu -a "bash --version"
 
 ! Careful with indentation / no tabs
   
+- **hosts**: 
+  tasks:
 
 - **become:** yes 
 > use sudo when executing a task
@@ -93,10 +95,62 @@ ansible ubuntu -a "bash --version"
      group:
 >Change the owner of a file
 
-- lineinfile:
+- **lineinfile**:
     path:
     regexp:
     line: 
+    state: present
+>Change the content of a line
+
+- **lineinfile**:
+    path:
+    insertafer: 
+    line:  ... |
+    ... 
+
+- **notify:**
+	- 'xyz'
+
+// at the beginning of the file
+	-> handlers:
+		- name : xyz
+		  service: do something
+
+- **copy:**
+    src:
+    dest:
+    owner:
+    group:
+    mode: 
+>copy a file
+
+- **mysql_user** //need MySQL-python package
+	 name :
+	 password:  // set the password for the root
+	 state:
+	 //login_password
+	 //login_user
+
+
+- **mysql_db:**
+     name: <db_name>
+     state: present 
+>create a database // make sur it is present
+
+- **mysql_user:**
+	name: 
+	password:
+	host: '%' // all
+	priv: <db_name>.*:ALL
+	state: present
+>create a specific user with full access on db_name
+
+
+- **mysql_user:**
+	name: '' 
+	host_all: yes
+	state: asbent
+>remove anonymous account
 
 
 ### Exemple of Yaml playblook
