@@ -189,15 +189,126 @@ primary terms : distinguish old and new primary shard by counting how many time 
  each operation has the primary terms so elastic knows which operation need a refresh
  Elastic use checkpoint to speed up the process.
 
-## Versionning
+### Versionning
 
 Elastic keep the number of revision but not the old version.
 -> tell how many time the doc was modified
 
-Concurrency writting:
+optimist Concurrency writting:
 old way : use _version in the query to make fails query if already runs
 new way: using primary term and sequence_number in the query
 (POST /products/_update/<id>?if_primary_erm=X&if_seq_no=X)
 
 
-## 
+### Update based on condition
+```POST /products/update_by_query
+{
+	//"conflicts":"proceed",
+	"script": {...},
+	"query":{...}
+}```
+
+- Create snapshot of the index
+- search query on all search
+- bulk request
+- retry on error for each shard
+- if > 10 errors, query aborded and not rollback
+
+### Delete based on condition
+```POST /products/delete_by_query
+{
+	"query":{...}
+}```
+
+### Batch Processing
+```
+- *application/x-ndjson*
+- end the line with \n
+POST /_bulk
+{"index" :{ "_index" : "products", "_id" : 200 } } // will replace if already exist
+{"name" : "<name>", "price" : "<p>", "key":"value"}
+{ "create":{ "_index" : "products", "_id" : 201 } // will fail if already exist
+{"name" : "<name>", "price" : "<p>", "key":"value"}
+---
+{"update" : { "_index" : "products", "_id" : 201 }}
+{"doc" : "key":"update_value"}
+{"delete" : { "_index" : "products", "_id" : 200 }}
+--- 
+or we can add the index in the URL and remove the "index" in the body
+
+
+```
+### Curl
+Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json
+
+
+## Mappings
+- default number is long
+- text != keyword, by default Elastic adds the two field 
+
+### Meta field:
+- _index : name of the index
+- _id : Id of the doc
+- _source: origin json oject
+- _field_names: name of the field
+- _routing : custom routing
+- _version : number of revision of the doc
+- _meta : store data when you can store w/e data not directly attached to the source
+
+### Data type:
+
+- Core: 
+
+	* Text  (full text used to analyzed)
+	* Keyword (filter & aggregation)
+	* Numeric
+	* Date 
+	* Boolean
+	* Binary 
+	* Range
+	
+- Complex: 
+	
+	* Object : flatten object
+	* Array : flatten array, need to have the same data type
+	* Array of object : link between properties lost
+	* Nested : independant document
+
+- Geo:
+
+	* geo_point : 
+		location : lat;long || lat;long|| [lat;long]
+	* geo_shape : point, polygon, linestring, multipoint, circle... 
+		-> GeoJson
+		
+- Specialized:
+	
+	* IP
+	* Completion (search-as-you-type)
+	* Attachment (document, word, pdf)
+
+### Add a mapping
+PUT /product/default/_mapping
+{
+	"properties":{"discount":{"type":"double"}}
+}
+
+### Change existing mapping
+delete index 
+create new one with new mapping
+ 
+ 
+### Mapping parameter
+
+	- Coerce :  correct value ("5" -> 5) (true by default)
+	- copy_to: create a copy of the value to another properties (firstname + lastname -> fullname)
+	- dynamic 
+	- properties : wrapper of the field object. Same for nested object
+	- norms :  disable storage of norms / relevance
+	- format : specify format of date field
+	- null_value: replace null by value provided. 
+	- fields : index a field
+	
+if the mapping is not define correctly (and dynamic mapping = false)
+your query can return nothing even if tey are correct because the value you are looking for are "hidden", no mapping available
+update_by_query will update docs with a new mapping
