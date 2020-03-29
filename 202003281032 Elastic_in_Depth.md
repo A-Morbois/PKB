@@ -118,6 +118,7 @@ PUT /products
 	"settings":{
 	"number_of_shards" : 2
 	"number_of_replicas": 2
+	}
 }
 ```
 
@@ -131,13 +132,16 @@ PUT /products
 `GET /products/_doc/<id>`
 
 - Update Value or add new field 
-```POST /products/_update/<id>
-{ "doc":{"key":"value"} }```
+```
+POST /products/_update/<id>
+{ "doc":{"key":"value"} }
+```
 -> it creates a new version of the doc, replaces the old one
 
 - scripted update :
 // update without knowing their value (decrease int for exemple)
-```POST /products/_update/<id>
+```
+POST /products/_update/<id>
 {
 	"script":{
 	"source": "ctx._source.stocks--"
@@ -150,15 +154,18 @@ PUT /products
 	// "params":{ "quantity" : 4 }
 
 	}
-}```
+}
+```
 script can also handle value < 0 and not update (ctx.op = noop)
 
 - Upsert
-```POST /products/_update/<id>
+```
+POST /products/_update/<id>
 {
 	"script":{}, // if already exist, run script
 	"upsert":{}  // if not exist, insert
-}```
+}
+```
 
 - Replace
 PUT /products/_update/<id>
@@ -203,12 +210,14 @@ new way: using primary term and sequence_number in the query
 
 
 ### Update based on condition
-```POST /products/update_by_query
+```
+POST /products/update_by_query
 {
 	//"conflicts":"proceed",
 	"script": {...},
 	"query":{...}
-}```
+}
+```
 
 - Create snapshot of the index
 - search query on all search
@@ -223,9 +232,10 @@ new way: using primary term and sequence_number in the query
 }```
 
 ### Batch Processing
-```
+
 - *application/x-ndjson*
 - end the line with \n
+```
 POST /_bulk
 {"index" :{ "_index" : "products", "_id" : 200 } } // will replace if already exist
 {"name" : "<name>", "price" : "<p>", "key":"value"}
@@ -235,13 +245,14 @@ POST /_bulk
 {"update" : { "_index" : "products", "_id" : 201 }}
 {"doc" : "key":"update_value"}
 {"delete" : { "_index" : "products", "_id" : 200 }}
+```
 --- 
 or we can add the index in the URL and remove the "index" in the body
 
 
 ```
 ### Curl
-Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json
+`Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json`
 
 
 ## Mappings
