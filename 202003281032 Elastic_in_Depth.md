@@ -96,13 +96,13 @@ overwrite settings of your node when starting it (instead of copy & pasting the 
 
 ### Node roles
 
-**node.master** : synchronize
-**node.data** : store
-**node.ingest** : add doc to index, can do some transformation // simplify logstash pipeline
-**node.ml** : machine learning jobs
-**xpack.ml.enabled** : dedicated ML node
-**coordination** : (=all other conf to false) : coordinate queries, usefull for large queries, load balancer
-**node.voting_only** : participate to the vote for the master node. only usefull for large cluster
+- **node.master** : synchronize
+- **node.data** : store
+- **node.ingest** : add doc to index, can do some transformation // simplify logstash pipeline
+- **node.ml** : machine learning jobs
+- **xpack.ml.enabled** : dedicated ML node
+- **coordination** : (=all other conf to false) : coordinate queries, usefull for large queries, load balancer
+- **node.voting_only** : participate to the vote for the master node. only usefull for large cluster
 
 dim : data, ingest, master // default roles
 
@@ -112,12 +112,14 @@ dim : data, ingest, master // default roles
 ## query docs
 
 - Create an index with settings:
-```PUT /products 
+```
+PUT /products 
 {
 	"settings":{
 	"number_of_shards" : 2
 	"number_of_replicas": 2
-}```
+}
+```
 
 - Insert doc
 `POST /products/_docs`
@@ -312,3 +314,6 @@ create new one with new mapping
 if the mapping is not define correctly (and dynamic mapping = false)
 your query can return nothing even if tey are correct because the value you are looking for are "hidden", no mapping available
 update_by_query will update docs with a new mapping
+
+
+## Text Analyze
