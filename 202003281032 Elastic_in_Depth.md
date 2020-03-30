@@ -112,11 +112,11 @@ dim : data, ingest, master // default roles
 ## query docs
 
 - Create an index with settings:
-```
+```json
 PUT /products 
 {
 	"settings":{
-	"number_of_shards" : 2
+	"number_of_shards" : 2,
 	"number_of_replicas": 2
 	}
 }
@@ -132,7 +132,7 @@ PUT /products
 `GET /products/_doc/<id>`
 
 - Update Value or add new field 
-```
+```json
 POST /products/_update/<id>
 { "doc":{"key":"value"} }
 ```
@@ -140,7 +140,7 @@ POST /products/_update/<id>
 
 - scripted update :
 // update without knowing their value (decrease int for exemple)
-```
+```json
 POST /products/_update/<id>
 {
 	"script":{
@@ -159,7 +159,7 @@ POST /products/_update/<id>
 script can also handle value < 0 and not update (ctx.op = noop)
 
 - Upsert
-```
+```json
 POST /products/_update/<id>
 {
 	"script":{}, // if already exist, run script
@@ -210,7 +210,7 @@ new way: using primary term and sequence_number in the query
 
 
 ### Update based on condition
-```
+```json
 POST /products/update_by_query
 {
 	//"conflicts":"proceed",
@@ -226,7 +226,8 @@ POST /products/update_by_query
 - if > 10 errors, query aborded and not rollback
 
 ### Delete based on condition
-```POST /products/delete_by_query
+```json
+POST /products/delete_by_query
 {
 	"query":{...}
 }
@@ -236,7 +237,7 @@ POST /products/update_by_query
 
 - *application/x-ndjson*
 - end the line with \n
-```
+```json
 POST /_bulk
 {"index" :{ "_index" : "products", "_id" : 200 } } // will replace if already exist
 {"name" : "<name>", "price" : "<p>", "key":"value"}
@@ -253,7 +254,9 @@ or we can add the index in the URL and remove the "index" in the body
 
 
 ### Curl
-```Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json```
+```bash
+Curl -H "Content-Type": "application/x-ndjson" -XPOST "http://localhost:9200/products/_bulk" --data-binary "@file.json"
+```
 
 
 ## Mappings
@@ -302,10 +305,12 @@ or we can add the index in the URL and remove the "index" in the body
 	* Attachment (document, word, pdf)
 
 ### Add a mapping
+```json
 PUT /product/default/_mapping
 {
 	"properties":{"discount":{"type":"double"}}
 }
+```
 
 ### Change existing mapping
 delete index 
@@ -334,11 +339,11 @@ each text from a doc a runs through an analyzer which tokenize the different ter
 it's possible to change the strandard tokenizer. the default one use space, coma etc... to cut words et store it to an array.
 then there are some function lowercase, stop words etc...
 
-```
+```json
 POST /_analyze
 {
-"tokenizer":"standard",
-"text": "I'm in the mood for drinking semi-dry red wine!"
+	"tokenizer":"standard",
+	"text": "I'm in the mood for drinking semi-dry red wine!"
 }
 ```
 
@@ -405,7 +410,8 @@ to mofdify an analyzer on an index, it will need to close it first to do the mod
 
 * With boolean: 
 
-`GET /product/default/_search?q=tag:Meat AND name:Tuna` // whitespace ->%20
+`GET /product/default/_search?q=tag:Meat AND name:Tuna`
+*// whitespace ->%20*
 
 
 ## DSL query
@@ -413,7 +419,7 @@ to mofdify an analyzer on an index, it will need to close it first to do the mod
 * Leaf query vs Compound query (combinaison leaf query)
 
 * basic query
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -440,7 +446,7 @@ now, stop words are not removed, they are still used in the calculus -> nonlinea
 `"explain":true` -> have the explanation of the score, you can know hamy many documnent have certain terms etc...	
 
 ### debug a query
-```
+```json
 GET /product/default/<id>/_explain
 {
 	"query": {	}
@@ -465,7 +471,7 @@ GET /product/default/<id>/_explain
 
 *find exact matches*
 
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -476,7 +482,7 @@ GET /product/default/_search
 
 - multiple terms (will match any of the value provided)
 
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -487,7 +493,7 @@ GET /product/default/_search
 
 - get many docs with ID
 
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -497,7 +503,7 @@ GET /product/default/_search
 ```
 
 - Get Doc with range
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -513,7 +519,7 @@ GET /product/default/_search
 *! Works with date / can also specify the format*
 
 ### Date
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -528,13 +534,13 @@ GET /product/default/_search
 }
 ```
  - Date Math 
- ```
+```json
 GET /product/default/_search
 {
 	"query": {
 		"range": {   
 			"created":{
-				"gte" : "01-01-2010+1d" (add 1 day)
+				"gte" : "01-01-2010+1d" // (add 1 day)
 				//"gte" : "01-01-2010-2y" (remove 2 year)
 				//"gte" : "01-01-2010/d" (rounded by the day)
 				//"gte" : "01-01-2010/M +1d" (rounded by the month + add one day )
@@ -545,11 +551,11 @@ GET /product/default/_search
 	}
 }
 ```
-[https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math](docs to date format)
+[docs to date format](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math)
 
 ### Non null value
 any value that doesn't contains null -> exist
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -562,7 +568,7 @@ GET /product/default/_search
 ``` 
 
 ### prefix
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -575,13 +581,13 @@ GET /product/default/_search
 ``` 
 
 ### Wildcare
-```
+```json
 GET /product/default/_search
 {
 	"query": {
 		"wildcard": {   
-			"tags.keyword":"Veg*ble"  -> any caracters or text within
-			"tags.keyword":"Veg?ble"  -> match only 1 caracter
+			"tags.keyword":"Veg*ble", // -> any caracters or text within
+			"tags.keyword":"Veg?ble"  //-> match only 1 caracter
 			} 
 		}
 	}
@@ -592,7 +598,7 @@ GET /product/default/_search
 
 
 ### Regex
-```
+```json
 GET /product/default/_search
 {
 	"query": {
@@ -600,5 +606,155 @@ GET /product/default/_search
 		}
 	}
 }
-``` 
+```
 *Based on Apache Lucene, not all feature of regexp are available*
+
+## Full Text Query
+
+
+### Flexible query
+
+* `match` use OR by default between words
+
+* To change the operator 
+```json
+GET /products/_search
+{
+  "query":{
+    "match":{
+      "title":{
+        "query" : "Recipes with pasta or spaghetti",
+        "operator": "and" // -> will look for the all the words "Recipes with pasta or spaghetti"
+      }
+    }
+  }
+}
+``` 
+* Order do not matter with match /^\\
+
+* but will with match_phrase  \v/
+
+```json
+GET /products/_search
+{
+  "query":{
+    "match_phrase":{
+      "title":{
+        "query" : "Recipes with pasta or spaghetti",
+        "operator": "and" // -> will look for the all the words "Recipes with pasta or spaghetti"
+      }
+    }
+  }
+}
+``` 
+
+* Looking for many field at once
+```json
+GET /products/_search
+{
+  "query":{
+    "multi_match":{
+        "query" : "pasta",
+        "fields": ["title", "description"] // will look for pasta in the title and the description
+      }
+    }
+  }
+}
+``` 
+
+
+## Compound Query
+
+Bool query is kinda similar to the where claue in SQL
+
+```json
+GET /products/_search
+{
+  "query":{
+    "bool":{
+		"must" :[   // Keep score
+			{Query1}
+		],
+		"must_not":[ // Keep score
+			{Query}
+		],
+		"should":[ // Boost score if match but not required // it's like preferences in the result
+			{Query}
+		],
+		"filtrer" :[ // Filter, do not care about the score
+			{query}
+		]
+      }
+    }
+  }
+}
+```
+
+**Should** : 
+
+- if in a query context -> it will boost score
+- Filtrer context : Is considered as a OR
+- Filter without a must and one query in sould -> become a required element
+
+### Debug 
+
+We can name our object query:
+```json
+"must":{
+	"match":{
+		"ingredient.name": {
+			"query" : "parmesan",
+			"_name" : "parmesan_must"
+		}
+	}
+}
+```
+*In the result, there will be an object called "matched queries" which give you the name of every object that match your query.
+It's usefull to debug the should part.*
+
+### Match Decomposed
+```json
+"query" :{
+	"match" : { "title" : "pasta carbonara"}
+}
+ 
+== Same as == 
+
+"query":{
+	"bool":{
+		"should":[
+			{"term" : {"title" : "pasta"}},
+			{"term" : {"title" : "carbonara"}},
+		]
+	}
+}
+```
+
+AND similarly
+
+```json
+"query" :{
+	"match" : {
+	  "title" : { 
+		  "query" :"pasta carbonara",
+	   	  "operator" : "AND"}
+	   }
+}
+ 
+== Same as == 
+
+"query":{
+	"bool":{
+		"must":[
+			{"term" : {"title" : "pasta"}},
+			{"term" : {"title" : "carbonara"}},
+		]
+	}
+}
+```
+
+
+## Joining query
+
+Join between docs are expensive (in performance)
+We basically sacrifice some disk space to increase search performance.
