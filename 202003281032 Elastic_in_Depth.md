@@ -251,9 +251,9 @@ POST /_bulk
 or we can add the index in the URL and remove the "index" in the body
 
 
-```
+
 ### Curl
-`Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json`
+```Curl -H "Content-Type": "application-x-ndjson" -XPOST http://localhost:9200/products/_bulk --data-binary file.json```
 
 
 ## Mappings
@@ -395,13 +395,16 @@ to mofdify an analyzer on an index, it will need to close it first to do the mod
 
 ## request URL 
 
-* match everything
+* match everything: 
+
 `GET /product/default/_search?q=*`
 
-* match with looking for name with lobster
+* match with looking for name with lobster :
+
 `GET /product/default/_search?q=name:loster`
 
-* With boolean
+* With boolean: 
+
 `GET /product/default/_search?q=tag:Meat AND name:Tuna` // whitespace ->%20
 
 
@@ -425,11 +428,14 @@ it broadcast the request on the other nodes. then get the result, merge them and
 
 by default, the result are sort by score properties 
 relevance determines how well the docs match the query (_score)
-	- **Term Frequency**: how many time the term appear in the doc
-	- **Inverse Document Frequency** : how many time the term appear in the index
-	- **Field Length Norm** : field length, the shorter the field, the more significanc it is
+
+- **Term Frequency**: how many time the term appear in the doc
+
+- **Inverse Document Frequency** : how many time the term appear in the index
+
+- **Field Length Norm** : field length, the shorter the field, the more significanc it is
 	
-	now, stop words are not removed, they are still used in the calculus -> nonlinear term frequency saturation
+now, stop words are not removed, they are still used in the calculus -> nonlinear term frequency saturation
 	
 `"explain":true` -> have the explanation of the score, you can know hamy many documnent have certain terms etc...	
 
@@ -585,7 +591,7 @@ GET /product/default/_search
 *Careful, It can be ok in dev but be slow in prod with millions of docs*
 
 
-##€ Regex
+### Regex
 ```
 GET /product/default/_search
 {
