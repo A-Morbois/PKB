@@ -229,7 +229,8 @@ POST /products/update_by_query
 ```POST /products/delete_by_query
 {
 	"query":{...}
-}```
+}
+```
 
 ### Batch Processing
 
@@ -313,14 +314,14 @@ create new one with new mapping
  
 ### Mapping parameter
 
-	- Coerce :  correct value ("5" -> 5) (true by default)
-	- copy_to: create a copy of the value to another properties (firstname + lastname -> fullname)
-	- dynamic 
-	- properties : wrapper of the field object. Same for nested object
-	- norms :  disable storage of norms / relevance
-	- format : specify format of date field
-	- null_value: replace null by value provided. 
-	- fields : index a field
+- Coerce :  correct value ("5" -> 5) (true by default)
+- copy_to: create a copy of the value to another properties (firstname + lastname -> fullname)
+- dynamic 
+- properties : wrapper of the field object. Same for nested object
+- norms :  disable storage of norms / relevance
+- format : specify format of date field
+- null_value: replace null by value provided. 
+- fields : index a field
 	
 if the mapping is not define correctly (and dynamic mapping = false)
 your query can return nothing even if tey are correct because the value you are looking for are "hidden", no mapping available
@@ -328,3 +329,270 @@ update_by_query will update docs with a new mapping
 
 
 ## Text Analyze
+
+each text from a doc a runs through an analyzer which tokenize the different terms and store it to an Inverted index
+it's possible to change the strandard tokenizer. the default one use space, coma etc... to cut words et store it to an array.
+then there are some function lowercase, stop words etc...
+
+```
+POST /_analyze
+{
+"tokenizer":"standard",
+"text": "I'm in the mood for drinking semi-dry red wine!"
+}
+```
+
+### Inverted Index
+
+Store text in a structure that makes the text easily queryable
+mapping between terms & doc if they appear in it
+where running a text query, elastic will use the inverted index instead of the doc
+
+
+### Character Filters
+
+- html_strip 
+- mapping : replace some string
+- pattern_replace : same but based on regular expression
+
+### Tokenizers
+
+- Word oriented
+
+	* Standard
+	* Letter Tokenizer (more primitive)
+	* lowercase : same as letter but + lowercase
+	* whitespace
+	* UAX URL Email: preserve url & email 
+	
+- Partial words
+
+	* N-Gram : go through letter by letter and increase
+		 red wine -> re,red,ed,win,wine,in,ine,ne
+	* Edge N-grame : same but only start of the beginning of a term	
+		red wine -> re,red,wi,win,wine
+		
+- Structured Text
+	* Keyword
+	* Pattern : regular expression
+	* Path : for filesystem path 
+		/path, /path/to, /path/to/file
+
+
+`PUT /existing_analyzer_config`
+
+
+to mofdify an analyzer on an index, it will need to close it first to do the modification:
+-> no read & write 
+
+`POST /index/_close` -> index not available
+
+// do the change of analyzer
+// then
+`POST /index/_open`  
+
+# Search Query
+
+## request URL 
+
+* match everything
+`GET /product/default/_search?q=*`
+
+* match with looking for name with lobster
+`GET /product/default/_search?q=name:loster`
+
+* With boolean
+`GET /product/default/_search?q=tag:Meat AND name:Tuna` // whitespace ->%20
+
+
+## DSL query
+
+* Leaf query vs Compound query (combinaison leaf query)
+
+* basic query
+```
+GET /product/default/_search
+{
+	"query": {
+		"match_all" : { }
+	}
+}
+```
+
+### routing query
+The node receiving the query is called coordating node, by default, everynode can be a coordinator
+it broadcast the request on the other nodes. then get the result, merge them and send back the result
+
+by default, the result are sort by score properties 
+relevance determines how well the docs match the query (_score)
+	- **Term Frequency**: how many time the term appear in the doc
+	- **Inverse Document Frequency** : how many time the term appear in the index
+	- **Field Length Norm** : field length, the shorter the field, the more significanc it is
+	
+	now, stop words are not removed, they are still used in the calculus -> nonlinear term frequency saturation
+	
+`"explain":true` -> have the explanation of the score, you can know hamy many documnent have certain terms etc...	
+
+### debug a query
+```
+GET /product/default/<id>/_explain
+{
+	"query": {	}
+}
+```
+
+### Context
+
+- **query**: How well document match
+
+- **filter**: do document match (do not calculate relevance)
+			filter on date, status, ...
+			better perf :  cached filter
+
+### term vs full text queries
+
+- **term** : search for exact values -> look in the inverted index
+			! careful to lowercase because index was tokenize
+- **match** : the full text is analyze 
+
+## Term level queries
+
+*find exact matches*
+
+```
+GET /product/default/_search
+{
+	"query": {
+		"term": { "is_active": true }
+		}
+}
+```
+
+- multiple terms (will match any of the value provided)
+
+```
+GET /product/default/_search
+{
+	"query": {
+		"terms": { "tags.keyword": ["v1", "v2"]}
+		}
+}
+```
+
+- get many docs with ID
+
+```
+GET /product/default/_search
+{
+	"query": {
+		"ids": { "value": ["1", "2"]}
+	}
+}
+```
+
+- Get Doc with range
+```
+GET /product/default/_search
+{
+	"query": {
+		"range": {   
+			"in_stock":{
+				"gte" : 1,
+				"lte" :5 
+			} 
+		}
+	}
+}
+```
+*! Works with date / can also specify the format*
+
+### Date
+```
+GET /product/default/_search
+{
+	"query": {
+		"range": {   
+			"created":{
+				"gte" : "01-01-2010",
+				"lte" : "31-12-2010",
+				"format" : "dd-MM-yyy"
+			} 
+		}
+	}
+}
+```
+ - Date Math 
+ ```
+GET /product/default/_search
+{
+	"query": {
+		"range": {   
+			"created":{
+				"gte" : "01-01-2010+1d" (add 1 day)
+				//"gte" : "01-01-2010-2y" (remove 2 year)
+				//"gte" : "01-01-2010/d" (rounded by the day)
+				//"gte" : "01-01-2010/M +1d" (rounded by the month + add one day )
+				//"gte" : "now/M +1d" 
+
+			} 
+		}
+	}
+}
+```
+[https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math](docs to date format)
+
+### Non null value
+any value that doesn't contains null -> exist
+```
+GET /product/default/_search
+{
+	"query": {
+		"exists": {   
+			"field":"tags" 
+			} 
+		}
+	}
+}
+``` 
+
+### prefix
+```
+GET /product/default/_search
+{
+	"query": {
+		"prefix": {   
+			"tags.keyword":"<prefix>" 
+			} 
+		}
+	}
+}
+``` 
+
+### Wildcare
+```
+GET /product/default/_search
+{
+	"query": {
+		"wildcard": {   
+			"tags.keyword":"Veg*ble"  -> any caracters or text within
+			"tags.keyword":"Veg?ble"  -> match only 1 caracter
+			} 
+		}
+	}
+}
+``` 
+*! Query can be slow, avoid wildcard in the beginning*
+*Careful, It can be ok in dev but be slow in prod with millions of docs*
+
+
+##€ Regex
+```
+GET /product/default/_search
+{
+	"query": {
+		"regexp": { "tags.keyword": "<Regexp Here>" } 
+		}
+	}
+}
+``` 
+*Based on Apache Lucene, not all feature of regexp are available*
