@@ -2,6 +2,12 @@
 tags = #Git , #Documentation, #IT
 
 
+## Config
+
+`git config --global user.name "..."`
+`git config --global user.email "..."`
+`vim .gitignore ` -> file that won't be include in the add 
+
 ## Branch
 * Connaitre les branches présentes dans le répot
 `git branch -a `
@@ -44,4 +50,19 @@ tags = #Git , #Documentation, #IT
 `git rm $(git ls-files --deleted)`
 
 
+## WIP
+* See the difference between 2 commit
+`git diff hash1..hash2`
+//the order of commit matter 
 
+`git push --set-upstream origin master`
+
+* grab the changes from the remote repo but do not commit them with the local one
+`git fetch`
+
+
+* Show commit from origin master not yet commit with the local branch
+`git master..origin/master`
+
+* commit the changes from fetch
+`git merge`
