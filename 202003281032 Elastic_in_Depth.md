@@ -758,3 +758,166 @@ AND similarly
 
 Join between docs are expensive (in performance)
 We basically sacrifice some disk space to increase search performance.
+
+
+
+
+### Multi Level Relation 
+
+
+*1 company have 0-N department ; 0-N supplier and department have 0-N employees*
+```json
+PUT /company
+{
+	"mappings":{"_doc":{"properties":{
+		"<join_field_name>":{
+			"type" : "join",
+			"relations":{
+				"company" : ["department", "supplier"],
+				"department" : "employee"
+			}
+		}
+	}
+}}
+}
+```
+
+*insert a grand-child with a multi level relationship*
+*Company ID : 1 ; Department ID : 2 ; Employee ID 3*
+**We need to store it on the same shard has the grand parent hence the routing=1**
+```json
+PUT /company/_doc/3?routing=1
+{
+	"name": "Jon Doe",
+	"<join_field_name>":{
+		"name":"employee",
+		"parent" : 2
+	}
+}
+```
+
+*Find any company that match the query (find any employee that is named Jon Doe)*
+```json
+GET /company/_search
+{
+	"query":{
+		"has_child":{
+			"type":"department",
+			"inner_hits":{}, //If I want the intermediary result
+			"query":{
+				"has_child":{
+					"type":"employee",
+					"query":{
+						"term":{
+							"name.keyword" :"Jon Doe"
+						}
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+
+### Lookup query
+
+we have 2 objects :
+-  stories 
+	* user
+	* content
+-  users: 
+	* name
+	* following[user]
+
+*We are looking for the stories of the users the user 1 is following*
+```json
+GET /stories/_search
+{
+	"query":{
+		"terms":{
+			"user":{
+				"index":"users",
+				"type":"_doc",
+				"id" : 1,
+				"path":"following"
+			}
+		}
+	}
+}
+```
+> Side note: this way of doing is better in terms of performance then doing 2 query in an application because it uses less bandwith and data transfer
+
+### A word on performance join
+
+* expensive in term of perf
+* the more child / parent , the slower
+* Each level of relation add complexity and time
+
+
+##  result
+
+### Format
+
+* Get YML result
+
+`GET /my_index/default/_search?format=yml
+`
+* Get a pretty result
+
+`GET /my_index/default/_search?pretty
+`
+
+> use way more resources.
+
+### Filter
+
+- Do not get the sources, only get ID and metadata
+```json
+GET /my_index/default/_search
+{
+	"_source":false,
+	"query":{}
+}
+```
+
+- Only get the field in the result, works with nested object : field.child, works with wildcard
+```json
+GET /my_index/default/_search
+{
+	"_source":"<field>",
+	"query":{}
+}
+```
+- Customize what you want to get back in your result
+```json
+GET /my_index/default/_search
+{
+	"_source":{
+		"include":"<name>",
+		"exclude":"<name2>"
+	},
+	"query":{}
+}
+```
+
+- Limit hits
+```json
+GET /my_index/default/_search
+{
+	"size":2,
+	"query":{...}
+}
+```
+> 10 by default
+
+- Offeset, pagination
+```json
+GET /my_index/default/_search
+{
+	"size":2,
+	"to": 0,
+	"from":2, 
+	"query":{...}
+}
+```
