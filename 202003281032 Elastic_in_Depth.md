@@ -1065,8 +1065,65 @@ GET /my_index/default/_search
 GET /my_index/default/_search
 {
 	"size":2,
-	"to": 0,
 	"from":2, 
 	"query":{...}
 }
 ```
+
+!= from a cursor.
+If a modification happens (creation, modification), each query/ page will take it into account.
+
+
+### Sorting
+
+```json
+GET /my_index/default/_search
+{
+	"query":{"match_all":{}},
+	"sort":[
+		{"<field>":"desc" },
+		{"<field2>.<nestedPropertie>":"asc" },
+		{"<field3>":{
+			"type":"asc",
+			"mode":	"avg"}
+		}
+	]
+}
+```
+
+## Aggregation
+
+### Metrics Aggregration
+
+```json
+GET /myindex/_search
+{
+	"size":0,
+	"aggs":{
+		"<agr_name>":{
+			"<agr_type>":{
+				"<agr_parameter>" // ex : "field" : "amount"
+			}
+		},
+		"<agr_name2>":{
+			"<agr_type>":{
+				"<agr_parameter>" // ex : "field" : "amount"
+			}
+		}
+	}
+}
+```
+
+- single value 
+
+Aggregation type
+	* Sum 
+	* Avg
+	* Min
+	* Max
+	* Cardinality // unique Count of a field ~ approximate number
+	* value_count //  number of value the aggregation use 
+	* stats // all in one -> count + min + max + avg + sum
+
+
+- multi value
