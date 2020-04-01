@@ -759,11 +759,54 @@ AND similarly
 Join between docs are expensive (in performance)
 We basically sacrifice some disk space to increase search performance.
 
+### Nested
 
+In the mapping, a type is "nested" means that's another object within the bject itself:
+```json
+PUT /department/
+{
+	"mappings":{ "_doc": { "properties" :{
+		"employees" : {"type": "nested"},
+		"name" : {"type" : "text"}
+	}
+	}}
+}
 
+---
+POST /department/_doc/1
+{
+	"name": "Development",
+	"employees":[
+		{"name":"Jon","age":39,"gender":"M"},
+		{...}
+	]
+}
+```
+-> Keep association between docs.
+Nested query should have two parameter:
+- a path to the object 
+- a query to run against this object
+
+```json
+GET /department/
+{
+	"query":{
+		"nested":{
+			"path": "employees",
+			"inner_hits":{}, // include result for the upper level (here department)
+			"query":{
+				"bool":{
+					"must":[
+					{"match":{"employees.gender.keyword" : "M"}}
+					]
+				}
+			}
+		}
+	}
+}
+```
 
 ### Multi Level Relation 
-
 
 *1 company have 0-N department ; 0-N supplier and department have 0-N employees*
 ```json
@@ -818,6 +861,112 @@ GET /company/_search
 	}
 }
 ```
+
+### Join Field
+To be define in the mapping
+
+```json
+PUT /department/
+{
+	"mappings":{ "_doc": { "properties" :{
+		"<join_field_name>" :{
+			"type": "join",
+			"relation":{
+				"department" : "employee" // department is the parent of employee
+			}
+	}
+	}}}
+}
+```
+
+
+*defining the parent*
+```json
+PUT /department/_doc/1
+{
+	"name": "Development",
+	"<join_field_name>" : "department" // precise the side of the relationship
+}
+```
+
+**parent and Child must be stored on the same shard. 
+we give the routing value to make sure this happens**
+
+*Defining the Child*
+```json
+POST /department/_doc/2?routing=1
+{
+	"name": "Jon Doe",
+	"age":39,
+	"gender":"M",
+	"<join_field_name>" :{ // precise the side of the relationship
+			"name" : "employee", 
+			"parent": 1
+	}
+}
+```
+
+*Query All employee from 1 department using the ID*
+```json
+GET /department/_search
+{
+	"query":{
+		"parent_id":{
+			"type": "employee",
+			"id":1
+		}
+	}
+}
+```
+
+*Query All employee from by searching a classic query (can be many departments for exemple*
+```json
+GET /department/_search
+{
+	"query":{
+		"has_parent":{
+			"parent_type": "department",
+			"score":true, // use the releveant score for the child in the parent
+			 "query":{
+				 "term":{"name.keyword":"Development"}
+			 }
+		}
+	}
+}
+```
+
+*The oposite : matching parent when specific criteria from the child //any query*
+*Ex: looking for department having employee over 50 and give boost score for male employee*
+```json
+GET /department/_search
+{
+	"query":{
+		"has_child":{
+			"parent_type": "employee",
+			"score_mode" : "sum",
+			"min_children": 1,
+			"max_children" : 5
+			 "query":{
+				"bool":{
+					"must":[
+						{"range":{"age":{"gte": 50}}}
+					],
+					"should":[
+						{"term":{"gender.keyword" :"M"}}
+					]
+				}
+			 }
+		}
+	}
+}
+```
+* score mode :
+	- min
+	- max
+	- avg
+	- sum
+	- none (default)
+* min & max children filter the result by putting a range on the count
 
 
 ### Lookup query
