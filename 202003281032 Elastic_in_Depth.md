@@ -1114,16 +1114,113 @@ GET /myindex/_search
 }
 ```
 
-- single value 
+- **single value** 
 
 Aggregation type
+
 	* Sum 
 	* Avg
 	* Min
 	* Max
-	* Cardinality // unique Count of a field ~ approximate number
-	* value_count //  number of value the aggregation use 
+	* Cardinality // *unique Count of a field ~ approximate number*
+	* value_count //  *number of value the aggregation use* 
 	* stats // all in one -> count + min + max + avg + sum
 
 
-- multi value
+- **bucket aggregation**
+
+	* term:
+
+```json
+GET /my_index/default/_search
+{
+	"size":0,
+	"aggs" :{
+		"status_terms":{
+			"terms":{
+				"field" : "<term.keyword>",
+				"missing" : "<name>", // other value,
+				"min_doc_count" : 0, // show only bucket with a minimum of doc
+				"order":{			// order the buckets
+					"_key" : "asc"
+				}
+
+			}
+		}
+	}
+}
+```
+
+For data stored in multiple shard :
+
+The query using number in bucket can be a bit misleading if the size is low. the query will take the top x of each shard to do it's aggregation. Tis top can be different from one shart to another, so the numnber may not be very accurate at some point. Improving size will slower the query but the result will be better
+
+* **Nested aggregation**
+
+```json
+GET /my_index/default/_search
+{
+	"query":{},
+	"size":0,
+	"aggs" :{
+		"status_terms":{
+			"terms":{
+				"field" : "<term.keyword>",
+				"aggs":{
+					"<bucket_name>":{
+						"<bucket_type>":{
+							"field" : "<field.keyword>"
+						}
+					}
+				}
+			}
+		}
+	}
+}
+```
+
+* **filter aggregation**
+
+- Simple one
+```json
+GET /my_index/default/_search
+{
+	"query":{},
+	"size":0,
+	"aggs" :{
+		"<filter_name>":{
+			"range":{ ...}
+		},
+		"aggs":{...} // this aggregation will run under the context of the filter
+	}
+}
+```
+
+- With rules
+
+```json
+GET /my_index/default/_search
+{
+	"size":0,
+	"aggs" :{
+		"<filter_name>":{
+			"filters":{ 
+				"filters":{ 
+					"<field>":{
+						"match" : {...}
+					},
+					"<field2>":{
+						"match" : {...}
+					}
+				}
+			},
+			"aggs":{
+				"<aggr_name>":{
+					"<aggr_type>":{...}
+			}
+		}
+	}
+}
+```
+=> This will create
+a main bucket filter_name with two bucket field & field2, both of them will have aggr_name inside
