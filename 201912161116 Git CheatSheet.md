@@ -8,6 +8,10 @@ tags = #Git , #Documentation, #IT
 `git config --global user.email "..."`
 `vim .gitignore ` -> file that won't be include in the add 
 
+* Unset a value fro the config
+`git config --global --unset http.proxy`
+
+
 ## Branch
 * Connaitre les branches présentes dans le répot
 `git branch -a `
@@ -66,3 +70,4 @@ tags = #Git , #Documentation, #IT
 
 * commit the changes from fetch
 `git merge`
+

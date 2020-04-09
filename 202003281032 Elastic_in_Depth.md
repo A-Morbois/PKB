@@ -1224,3 +1224,53 @@ GET /my_index/default/_search
 ```
 => This will create
 a main bucket filter_name with two bucket field & field2, both of them will have aggr_name inside
+
+
+## Other
+
+### Synonyms
+
+The search is working with the term, not the full text query
+In the mapping, there is a synonyms category in te settings:
+```json
+PUT /<index>
+{
+	"settings" : {"analysis":{"filter":{
+		"<synonym>":{
+			"type":"synonym",
+			"synonyms":[
+				"awful" => "terrible",
+				"awesome" => "great","super" 
+				"elasticsearch","logstash","kibana" => "elk"
+				],
+			"synonyms_path" : "file to synonyms"
+		}
+	}}}
+}
+```
+- *replace awful by terrible*
+
+- *gret and super will have the same position in the inverted index*
+
+- *Careful to the place of the filter, run lowercase before synonym for instance*
+
+- *When searching, the match, will go though the same analysis so you can search for great, even if the doc don't have the word itself, the doc can be match because it has awesome instead*
+
+- for the file: 
+	* 1 rule per line
+	* Should be available on all nodes storing the index
+	* when updating the synonym file, the old document won't have the synonym, it doesn't reindex all docs ! -> update by query too  "replay" the docs
+
+### Highliter
+```json
+GET /index/default/_search
+{
+	"query":{...},
+	"highlight":{
+		"pre_tags":["<strong>"],
+		"post_tag":["</strong"],
+		"fields":{}
+		}
+}
+```
+will return fragment of content, the term will be engloble with <em> by default (strong, in our exemple) so we can find where your term is. (to find easily find it or even find the where is the synonym)
